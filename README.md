@@ -16,6 +16,8 @@
 
 3. **Kiểm soát tính công bằng:** Cả hai thuật toán (Cơ bản và Tối ưu) được yêu cầu giải quyết **chính xác cùng một bộ dữ liệu test**. Đầu vào ngẫu nhiên được sinh ra và lưu lại trước khi test. Việc ép buộc hai thuật toán chạy trên cùng một tập tọa độ $(x, y)$ giúp loại bỏ hoàn toàn yếu tố may mắn.
 
+4. **Kiểm soát Overhead đo lường:** Để thiết lập cơ chế ngắt thời gian (Time Limit = 20s) mà không làm chậm thuật toán, bộ đếm không gọi hàm kiểm tra hệ thống ở mọi bước đệ quy. Thay vào đó, bộ đếm sử dụng kỹ thuật "chunking" (chỉ xem đồng hồ 1 lần sau mỗi 1000 lần rẽ nhánh). Thiết kế này triệt tiêu độ trễ (overhead) của việc đo lường, đảm bảo tốc độ ghi nhận phản ánh đúng năng lực tính toán thuần túy của bản thân thuật toán.
+
 ---
 
 ## Phần 1: Bài toán 1 - Mã đi tuần
@@ -33,18 +35,35 @@ Tìm một hành trình cho quân Mã đi qua tất cả các ô trên bàn cờ
 * **Bản chất tối ưu:** Giải quyết bài toán theo hướng "khó làm trước". Các ô ở góc/cạnh bàn cờ có ít đường vào sẽ được ưu tiên lấp đầy sớm, tránh việc chúng bị kẹt lại ở cuối hành trình và tạo ra ngõ cụt buộc thuật toán phải quay lui từ độ sâu lớn.
 
 ### 3. Kết quả Thực nghiệm (Average-case Analysis)
-*Dữ liệu được đo đạc trung bình trên 5 điểm xuất phát ngẫu nhiên.*
+*Dữ liệu được đo đạc trung bình trên 5 điểm xuất phát ngẫu nhiên. Ngưỡng thời gian (Time Limit) là 20.0s.*
 
-| Thuật toán | N | Tgian TB (ms) | Trạng thái (Ngẫu nhiên) | Phân tích hiện tượng |
-| :--- | :--- | :--- | :--- | :--- |
-| **Optimized** | 4 | 1.70 | Có ca vô nghiệm | Do định lý đồ thị 4x4 không có đường đi tuần. Nghịch lý Overhead: Trên không gian mẫu quá nhỏ, thuật toán tối ưu chạy chậm ngang Brute-force do tốn chi phí tính toán Heuristic. |
-| **Basic** | 4 | 1.92 | Có ca vô nghiệm | Như trên. Quét toàn bộ không gian để kết luận vô nghiệm. |
-| **Optimized** | 5 | 926.85 | Có ca vô nghiệm | Hiện tượng lệch chẵn lẻ: Bàn cờ 5x5 có 13 ô Đen, 12 ô Trắng. Nếu xuất phát ngẫu nhiên vào ô Trắng, đồ thị vô nghiệm. Thuật toán phải quét toàn bộ trạng thái để chứng minh điều này. |
-| **Basic** | 5 | 2367.84| Có ca vô nghiệm | Quét toàn bộ không gian nhưng chậm hơn do đâm vào các nhánh sâu sai lệch. |
-| **Optimized** | 6 | 2.87 | **Thành công** | Đồ thị 6x6 đạt cân bằng chẵn lẻ, luôn có nghiệm. Warnsdorff đi một mạch tới đích không cần quay lui. |
-| **Basic** | 6 | Bỏ qua | Quá chậm (>10000ms) | Bùng nổ tổ hợp (Combinatorial Explosion). Không khả thi với Brute-force. |
-| **Optimized** | 8 | 11.43 | **Thành công** | Warnsdorff vẫn giải quyết mượt mà trên bàn cờ tiêu chuẩn 8x8. |
-| **Basic** | 8 | Bỏ qua | Quá chậm (>10000ms) | Bùng nổ tổ hợp (Combinatorial Explosion). Không khả thi với Brute-force. |
+| Thuật toán | N | Tgian TB (ms) | Trạng thái |
+| :--- | :--- | :--- | :--- |
+| **Optimized** | 4 | 2.35 | Có ca vô nghiệm |
+| **Basic** | 4 | 1.82 | Có ca vô nghiệm |
+| **Optimized** | 5 | 447.15 | Có ca vô nghiệm |
+| **Basic** | 5 | 1107.39| Có ca vô nghiệm |
+| **Optimized** | 6 | 0.73 | **Thành công** |
+| **Basic** | 6 | Bỏ qua | Bị ngắt (> 20.0s) |
+| **Optimized** | 8 | 2.94 | **Thành công** |
+| **Basic** | 8 | Bỏ qua | Bị ngắt (> 20.0s) |
+| **Optimized** | 20 | 370.11 | **Thành công** |
+| **Basic** | 20 | Bỏ qua | Bị ngắt (> 20.0s) |
+| **Optimized** | 50 | 5393.69| **Thành công** |
+| **Basic** | 50 | Bỏ qua | Bị ngắt (> 20.0s) |
+| **Optimized** | 100| Bỏ qua | Bị ngắt (> 20.0s) |
+| **Basic** | 100| Bỏ qua | Bị ngắt (> 20.0s) |
+| **Optimized** | 200| Bỏ qua | Bị ngắt (> 20.0s) |
+| **Basic** | 200| Bỏ qua | Bị ngắt (> 20.0s) |
+
+### 4. Giải thích và Phân tích Kết quả
+
+Từ bảng dữ liệu khi mở rộng hệ thống lên mức độ lớn ($N=20$ đến $N=200$), ta rút ra được các kết luận cốt lõi về bản chất tối ưu:
+
+* Bắt đầu từ $N=6$ trở đi, không gian trạng thái đã đủ lớn để thuật toán đệ quy (Basic) hoàn toàn lạc lối. Nó vượt quá giới hạn 20 giây và bị hệ thống ngắt toàn bộ ở các kích thước lớn hơn.
+* Thuật toán Optimized giải quyết xuất sắc các bàn cờ cỡ vừa và lớn (từ $N=6$ đến $N=50$). La bàn Warnsdorff giúp nó đi thẳng đến đích mà gần như không rẽ nhánh sai.
+    * Tuy nhiên, **tại sao Optimized lại thất bại ở $N=100$ và $N=200$?** Bản chất nằm ở chi phí chìm (Hidden Overhead) của hàm cắt tỉa `has_orphan_cell`. Để kiểm tra ô mồ côi, hàm này phải duyệt qua toàn bộ $N^2$ ô trên bàn cờ ở **mỗi bước đi**. Để đi hết bàn cờ $100 \times 100$, thuật toán phải gọi hàm kiểm tra này 10,000 lần. Suy ra, tổng số phép tính chỉ riêng cho việc cắt tỉa là $O(N^4)$ (khoảng $10^8$ phép lặp). Khối lượng tính toán này khiến nó bị ngắt vì vượt quá 20 giây dù đi rất đúng hướng.
+
 ---
 
 ## Phần 2: Bài toán 2 - Magic Square
@@ -64,17 +83,38 @@ Tìm một hành trình cho quân Mã đi qua tất cả các ô trên bàn cờ
     * **Chốt chặn cuối tuyến:** Khi điền đến ô cuối của một hàng/cột, nếu tổng không bằng chính xác $M$, từ chối nhánh đệ quy.
 
 ### 3. Kết quả Thực nghiệm
+*Ngưỡng thời gian (Time Limit) được thiết lập là 20.0s.*
 
-| Thuật toán | N | Số lượng nghiệm tìm được | Tổng Tgian (ms) | Nhận xét |
+| Thuật toán | N | Số nghiệm | Tgian TB (ms) | Trạng thái |
 | :--- | :--- | :--- | :--- | :--- |
-| **Optimized (Bitmask)**| 3 | **8** | 0.2391 | Quét sạch không gian $9!$, áp dụng Branch & Bound thành công để tìm ra toàn bộ tập nghiệm hoàn chỉnh. |
-| **Basic (Siamese)** | 3 | **1** | 0.0102 | Nhanh hơn gấp 20 lần do dùng công thức toán học nội suy, nhưng bỏ sót 7 nghiệm còn lại. |
-| **Optimized (Bitmask)**| 4 | N/A | Treo máy (>10000ms) | Không gian tổ hợp bùng nổ lên $16!$ (~20.9 nghìn tỷ hoán vị). Thuật toán Nhánh cận sụp đổ. |
-| **Basic (Siamese)** | 4 | 0 | 0.0013 | Phát hiện N chẵn và báo lỗi vô nghiệm theo đúng lý thuyết phương pháp Xiêm. |
+| **Optimized (Bitmask)**| 3 | **8** | 6.43 | Hoàn thành |
+| **Basic (Siamese)** | 3 | **1** | 0.03 | Hoàn thành |
+| **Optimized (Bitmask)**| 4 | N/A | Bị ngắt (> 20.0s) | Bị ngắt |
+| **Basic (Siamese)** | 4 | 0 | < 0.005| Hoàn thành |
+| **Optimized (Bitmask)**| 7 | N/A | Bị ngắt (> 20.0s) | Bị ngắt |
+| **Basic (Siamese)** | 7 | **1** | 0.02 | Hoàn thành |
+| **Optimized (Bitmask)**| 33 | N/A | Bị ngắt (> 20.0s) | Bị ngắt |
+| **Basic (Siamese)** | 33 | **1** | 0.41 | Hoàn thành |
+| **Optimized (Bitmask)**| 51 | N/A | Bị ngắt (> 20.0s) | Bị ngắt |
+| **Basic (Siamese)** | 51 | **1** | 0.60 | Hoàn thành |
+| **Optimized (Bitmask)**| 99 | N/A | Bị ngắt (> 20.0s) | Bị ngắt |
+| **Basic (Siamese)** | 99 | **1** | 2.54 | Hoàn thành |
+| **Optimized (Bitmask)**| 199| N/A | Bị ngắt (> 20.0s) | Bị ngắt |
+| **Basic (Siamese)** | 199| **1** | 9.87 | Hoàn thành |
+
+### 4. Giải thích và Phân tích Kết quả
+
+Kết quả đo lường với các ma trận khổng lồ làm nổi bật rõ rệt hai trường phái tính toán:
+
+* Ngay từ $N=4$, không gian tổ hợp đã bùng nổ lên $16!$ (hơn 20 nghìn tỷ hoán vị). Dù kỹ thuật Nhánh cận (Branch & Bound) kết hợp Bitmask có mạnh mẽ đến đâu, nó cũng không thể xuyên thủng màng lọc đệ quy này. Việc cố gắng đếm toàn bộ nghiệm của Ma phương bằng Backtracking ở các $N \ge 4$ là bất khả thi trên các hệ thống thông thường.
+* Trái ngược với Backtracking, phương pháp Xiêm (Basic) hoàn toàn không rẽ nhánh. Độ phức tạp của nó là $O(N^2)$ (tỷ lệ thuận với số ô trên bàn cờ). 
+    * Khi $N$ tăng từ 51 lên 199, số lượng ô tăng khoảng 16 lần ($2601$ lên $39601$ ô). Nhìn vào cột thời gian, ta thấy thời gian chạy cũng tăng theo tỷ lệ tương ứng (từ $0.60 \text{ ms}$ lên $\approx 9.87 \text{ ms}$). 
+    * Điều này chứng minh tính ổn định tuyệt đối của các thuật toán có độ phức tạp đa thức (Polynomial Time). Dù bảng có lớn đến $199 \times 199$, thuật toán vẫn giải quyết mượt mà trong chưa tới $10 \text{ ms}$, nhưng phải đánh đổi bằng việc nó chỉ áp dụng được cho $N$ lẻ và chỉ tìm ra đúng 1 nghiệm duy nhất.
 
 ---
 
-## Tổng kết Kỹ thuật
-Qua thực nghiệm hai hệ thống thuật toán, ta thấy rõ sự đánh đổi (Trade-off) cốt lõi trong phân tích độ phức tạp:
-1.  **Về Không gian trạng thái:** Khi đồ thị đạt mức phức tạp nhất định (từ $6 \times 6$ của Mã đi tuần hoặc $4 \times 4$ của Ma phương đếm nghiệm), Backtracking thuần túy (Brute-force) sẽ sụp đổ hoàn toàn do bùng nổ tổ hợp.
-2.  **Về Tối ưu hóa:** Việc tích hợp Heuristic (Warnsdorff) hoặc Cắt tỉa (Branch & Bound) là điều kiện bắt buộc để đưa Backtracking vào thực tiễn. Tuy nhiên, các kỹ thuật này mang theo một lượng **Overhead Cost** nhất định, khiến chúng có thể chạy chậm hơn cả Brute-force trên các không gian dữ liệu cực nhỏ (ví dụ: Knight Tour $N=4$).
+### Tổng kết Kỹ thuật
+Sự tương phản ở $N=6$ (Mã đi tuần) và $N=4$ (Ma phương) làm nổi bật bản chất của thiết kế thuật toán:
+* Phương pháp Heuristic (như Warnsdorff) là một **la bàn** dẫn hướng cực tốt để tìm ra 1 nghiệm trong không gian sâu.
+* Cắt tỉa nhánh cận (Branch and Bound) là một **màng lọc** tốt, nhưng khi không gian mẫu bùng nổ theo hàm Giai thừa ($O(N^2!)$), màng lọc cũng bị thủng. Với bài toán vét cạn tất cả tập nghiệm, Backtracking có giới hạn thực tiễn rất thấp.
+* Thuật toán kiến thiết toán học (Siamese) luôn có độ trễ bằng 0, nhưng phải đánh đổi bằng sự cứng nhắc (không duyệt được toàn bộ trạng thái, không chạy được mọi đầu vào).

@@ -1,6 +1,9 @@
 import time
 import os
 import random
+import sys
+
+sys.setrecursionlimit(10000)
 
 from knight_tour.knight_tour_basic import knights_tour_basic
 from knight_tour.knight_tour_optimized import knights_tour_optimized
@@ -28,7 +31,7 @@ def generate_random_starts(n, num_trials):
         start_points.append((random.randint(0, n - 1), random.randint(0, n - 1)))
     return start_points
 
-def write_knight_tour_to_log(n, board, algo_name, sx, sy, filename="log.txt"):
+def write_knight_tour_to_log(n, board, algo_name, sx, sy, filename="log_output.txt"):
     """Hàm ghi log chuyên dụng cho mảng 2 chiều của Knight Tour"""
     with open(filename, "a", encoding="utf-8") as f:
         f.write(f"\n[{algo_name}] --- MÃ ĐI TUẦN {n}x{n} (Bắt đầu: {sx},{sy}) ---\n")
@@ -41,7 +44,7 @@ def write_knight_tour_to_log(n, board, algo_name, sx, sy, filename="log.txt"):
                 f.write("\n")
         f.write("-" * 35 + "\n")
 
-def write_boards_to_log(n, boards, algo_name, filename="log.txt"):
+def write_boards_to_log(n, boards, algo_name, filename="log_output.txt"):
     """Hàm phụ trợ định dạng 1D array thành ma trận 2D và ghi file"""
     with open(filename, "a", encoding="utf-8") as f:
         f.write(f"\n[{algo_name}] --- MA PHƯƠNG {n}x{n} ---\n")
@@ -61,7 +64,7 @@ def run_knight_tour_benchmark(test_cases, time_limit, num_trials=3):
     print("\n" + "="*80)
     print(f"[{'KNIGHT TOUR BENCHMARK':^76}]")
     print("="*80)
-    print("Đang ghi kết quả chi tiết ra file 'log.txt'...")
+    print("Đang ghi kết quả chi tiết ra file 'log_output.txt'...")
     print(f"Đang chạy đo lường trung bình với {num_trials} điểm ngẫu nhiên mỗi N...")
     print(f"{'Thuật toán':<25} | {'N':<5} | {'Điểm test':<10} | {'Tgian TB (ms)':<15} | {'Trạng thái'}")
     print("-" * 80)
@@ -134,25 +137,25 @@ def run_magic_square_benchmark(test_cases, time_limit):
             print(f"{'Optimized (Bitmask)':<25} | {n:<5} | {'-':<10} | {timeout_str:<15} | Bị ngắt (Quá {time_limit}s)")
         else:
             count_opt, boards_opt = res_opt
-            write_boards_to_log(n, boards_opt, "Optimized", "log.txt")
+            write_boards_to_log(n, boards_opt, "Optimized", "log_output.txt")
             print(f"{'Optimized (Bitmask)':<25} | {n:<5} | {count_opt:<10} | {time_opt:<15.4f} | Hoàn thành")
 
         res_basic, status_basic, time_basic = measure_time(magic_square_basic, n)
         count_basic, boards_basic = res_basic
-        write_boards_to_log(n, boards_basic, "Basic", "log.txt")
+        write_boards_to_log(n, boards_basic, "Basic", "log_output.txt")
         print(f"{'Basic (Siamese)':<25} | {n:<5} | {count_basic:<10} | {time_basic:<15.4f} | Hoàn thành")
         
         print("-" * 80)
 
 if __name__ == "__main__":
     # Cấu hình không gian test
-    KT_TEST_CASES = [4, 5, 6, 8] # Kích thước N cho Mã đi tuần
-    MS_TEST_CASES = [3, 4, 5] # Kích thước N cho Ma phương
+    KT_TEST_CASES = [4, 5, 6, 8, 10, 15, 20, 30, 50, 100] # Kích thước N cho Mã đi tuần
+    MS_TEST_CASES = [3, 4, 5, 7, 11, 15, 33, 51] # Kích thước N cho Ma phương
     
     TIME_LIMIT_SEC = 20.0 # Ngưỡng ngắt thuật toán (giây)
     NUM_TRIALS = 5 # Số lượng điểm xuất phát ngẫu nhiên
     
-    LOG_FILE = "log.txt"
+    LOG_FILE = "log_output.txt"
 
     if os.path.exists(LOG_FILE):
         os.remove(LOG_FILE)
